@@ -1,0 +1,37 @@
+name: MinePlot
+description: A plugin that lets you plot math in Minecraft.
+main: edu.ntnu.tobiasth.mineplot.MinePlot
+version: 1.0.0
+api-version: 1.16
+commands:
+  mp:
+    description: The base command for everything MinePlot.
+  mp help:
+    description: Shows help for the given search.
+    usage: /mp help <search>
+
+  mp canvas add:
+    description: Add a new canvas.
+    usage: /mp canvas add <name> <minValueX> <maxValueX> <minValueY> <maxValueY> <x1> <y1> <z1> <x2> <y2> <z2> <material>
+  mp canvas clear:
+    description: Clear a canvas.
+    usage: /mp canvas clear <name>
+  mp canvas list:
+    description: List all your canvases.
+    usage: /mp canvas list
+  mp canvas remove:
+    description: Remove a canvas.
+    usage: /mp canvas remove <name>
+
+  mp plot add function:
+    description: Add a function to a canvas.
+    usage: /mp plot add function <name> <expression> <variable> <canvas> <material>
+  mp plot add point:
+    description: Add a point to a canvas.
+    usage: /mp plot add point <name> <x> <y> <canvas> <material>
+  mp plot list:
+    description: List all plots on a canvas.
+    usage: /mp plot list <canvas>
+  mp plot remove:
+    description: Remove a plot from a canvas.
+    usage: /mp plot remove <canvas> <name>
