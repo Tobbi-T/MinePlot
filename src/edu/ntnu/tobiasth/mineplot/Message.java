@@ -3,7 +3,7 @@ package edu.ntnu.tobiasth.mineplot;
 public abstract class Message {
     private Message() {}
 
-    public static final String VERSION_INFO = "This server runs MinePlot v. 1.0.0 by tobiasth.";
+    public static final String VERSION_INFO = "This server runs MinePlot v. 1.1.0 by tobiasth.";
 
     public static final String UNKNOWN_COMMAND = "Unknown command. Please check your syntax.";
     public static final String SENDER_NOT_PLAYER = "This command can only be used by players.";
@@ -19,6 +19,12 @@ public abstract class Message {
     public static final String PLOT_REMOVE_SUCCESS = "Successfully removed the plot.";
     public static final String PLOT_EXISTS = "A plot with that name already exists on the given canvas.";
     public static final String NO_PLOTS = "There are no plots to display.";
+
+    public static final String TOGGLE_ON = "Toggled on the coordinate selection tool.";
+    public static final String TOGGLE_OFF = "Toggled off the coordinate selection tool.";
+    public static final String SET_LEFT_SELECTION = "Set the left block selection.";
+    public static final String SET_RIGHT_SELECTION = "Set the right block selection.";
+    public static final String NO_SELECTION = "Could not find a selection, use /mp tool to define one.";
 
     public static final String INVALID_ARGUMENT_COUNT = "Wrong number of arguments for this command.";
     public static final String INVALID_VALUE_RANGE = "The given value range is not valid.";

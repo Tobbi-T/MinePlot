@@ -9,6 +9,7 @@ public enum Command {
     PLOT_ADD_POINT("plot add point"),
     PLOT_REMOVE("plot remove"),
     PLOT_LIST("plot list"),
+    TOOL("tool"),
     HELP("help");
 
     private final String identifier;

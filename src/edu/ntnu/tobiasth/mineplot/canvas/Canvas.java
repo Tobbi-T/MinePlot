@@ -123,6 +123,10 @@ public class Canvas {
 
         Location location = new Location(startLocation.getWorld(), startLocation.getBlockX(), startLocation.getBlockY(), startLocation.getBlockZ());
 
+        //Invert the x value if positive on the canvas is negative in-game.
+        if(isInvertedX())
+            x *= -1;
+
         if(isParallelToX())
             location.add(x, y, 0);
         else
@@ -147,6 +151,17 @@ public class Canvas {
      */
     public boolean isParallelToX() {
         return startLocation.getBlockZ() == endLocation.getBlockZ();
+    }
+
+    /**
+     * Whether or not the in-game axis is inverted compared to the canvas axis.
+     * @return True if the axis are inverted, false if not.
+     */
+    public boolean isInvertedX() {
+        if(isParallelToX())
+            return (endLocation.getBlockX() - startLocation.getBlockX()) < 0;
+        else
+            return (endLocation.getBlockZ() - startLocation.getBlockZ()) < 0;
     }
 
     /**

@@ -5,6 +5,7 @@ import edu.ntnu.tobiasth.mineplot.canvas.ValueRange;
 import edu.ntnu.tobiasth.mineplot.plot.Function;
 import edu.ntnu.tobiasth.mineplot.plot.Plot;
 import edu.ntnu.tobiasth.mineplot.plot.Point;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -18,6 +19,17 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class MinePlot extends JavaPlugin {
     private final HashMap<UUID, HashMap<String, Canvas>> canvases = new HashMap<>();
+    private final HashMap<UUID, LocationSelection> locationSelections = new HashMap<>();
+    private final ArrayList<UUID> activeTools = new ArrayList<>();
+
+    /**
+     * Built-in method that is called by the server when server is enabled.
+     */
+    @Override
+    public void onEnable() {
+        //Register the event listeners from the EventListener class.
+        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
+    }
 
     /**
      * Built-in method that is called by the server when a command sender issues a command.
@@ -85,7 +97,7 @@ public class MinePlot extends JavaPlugin {
         //Execute the command.
         switch(command) {
             case CANVAS_ADD: {
-                checkArgumentCount(args, 12);
+                checkArgumentCount(args, 6);
                 canvasAdd(sender, Arrays.stream(args).iterator());
                 return;
             }
@@ -100,8 +112,7 @@ public class MinePlot extends JavaPlugin {
                 return;
             }
             case CANVAS_LIST: {
-                checkArgumentCount(args, 0);
-                canvasList(sender, Arrays.stream(args).iterator());
+                canvasList(sender);
                 return;
             }
             case PLOT_ADD_FUNCTION: {
@@ -124,6 +135,10 @@ public class MinePlot extends JavaPlugin {
                 plotList(sender, Arrays.stream(args).iterator());
                 return;
             }
+            case TOOL: {
+                toggleTool(sender);
+                return;
+            }
             case HELP: {
                 //Redirect help comment to built-in help comment.
                 StringBuilder helpCommand = new StringBuilder().append("help mp");
@@ -134,7 +149,7 @@ public class MinePlot extends JavaPlugin {
     }
 
     /**
-     * Add a new canvas. Takes 12 arguments.
+     * Add a new canvas. Takes 6 arguments.
      * @param sender Player that sent the command.
      * @param args Command arguments.
      */
@@ -147,19 +162,13 @@ public class MinePlot extends JavaPlugin {
         double maxValueY = parseDouble(args.next());
         ValueRange valueRange = new ValueRange(minValueX, maxValueX, minValueY, maxValueY);
 
-        int x = parseInt(args.next());
-        int y = parseInt(args.next());
-        int z = parseInt(args.next());
-        Location a = new Location(sender.getWorld(), x, y, z);
-
-        x = parseInt(args.next());
-        y = parseInt(args.next());
-        z = parseInt(args.next());
-        Location b = new Location(sender.getWorld(), x, y, z);
+        LocationSelection locations = locationSelections.get(sender.getUniqueId());
+        if(Objects.isNull(locations))
+            throw new IllegalArgumentException(Message.NO_SELECTION);
 
         Material material = getMaterial(args.next());
 
-        Canvas canvas = new Canvas(name, valueRange, a, b, material);
+        Canvas canvas = new Canvas(name, valueRange, locations.getLeft(), locations.getRight(), material);
 
         //Add canvas hashmap if user does not have one.
         canvases.putIfAbsent(sender.getUniqueId(), new HashMap<>());
@@ -204,11 +213,10 @@ public class MinePlot extends JavaPlugin {
     }
 
     /**
-     * Lists all sender canvases. Takes 2 arguments.
+     * Lists all sender canvases. Takes no arguments.
      * @param sender Player who sent the command.
-     * @param args Command arguments.
      */
-    private void canvasList(@NotNull Player sender, @NotNull Iterator<String> args) {
+    private void canvasList(@NotNull Player sender) {
         sender.sendMessage(Message.CANVAS_LIST(sender.getDisplayName()));
 
         //If sender has no canvases
@@ -274,7 +282,7 @@ public class MinePlot extends JavaPlugin {
      * @param sender Player who sent the command.
      * @param args Command arguments.
      */
-    private void plotRemove(Player sender, Iterator<String> args) {
+    private void plotRemove(@NotNull Player sender, @NotNull Iterator<String> args) {
         Canvas canvas = getCanvas(sender.getUniqueId(), args.next());
         String name = args.next();
 
@@ -298,7 +306,7 @@ public class MinePlot extends JavaPlugin {
      * @param sender Player who sent the command.
      * @param args Command arguments.
      */
-    private void plotList(Player sender, Iterator<String> args) {
+    private void plotList(@NotNull Player sender, @NotNull Iterator<String> args) {
         Canvas canvas = getCanvas(sender.getUniqueId(), args.next());
         sender.sendMessage(Message.PLOT_LIST(canvas.getName()));
 
@@ -311,6 +319,52 @@ public class MinePlot extends JavaPlugin {
         for(Plot plot : canvas.getPlots()) {
             sender.sendMessage(Message.TAB(plot.toString()));
         }
+    }
+
+    /**
+     * Activates or deactivates a players coordinate selection tool. Takes no arguments.
+     * @param sender Player who sent the command.
+     */
+    private void toggleTool(Player sender) {
+        UUID id = sender.getUniqueId();
+
+        if(activeTools.contains(id)) {
+            activeTools.remove(id);
+            sender.sendMessage(Message.TOGGLE_OFF);
+        }
+        else {
+            activeTools.add(id);
+            sender.sendMessage(Message.TOGGLE_ON);
+        }
+    }
+
+    /**
+     * Return a players tool status.
+     * @param player Player to check status for.
+     * @return True if tool enabled, false if disabled.
+     */
+    protected boolean toolEnabled(Player player) {
+        return activeTools.contains(player.getUniqueId());
+    }
+
+    /**
+     * Set a players left selection.
+     * @param player Player to change the selection for.
+     * @param location Location to change the selection to.
+     */
+    protected void setLeftSelection(Player player, Location location) {
+        locationSelections.putIfAbsent(player.getUniqueId(), new LocationSelection());
+        locationSelections.get(player.getUniqueId()).setLeft(location);
+    }
+
+    /**
+     * Set a players right selection.
+     * @param player Player to change the selection for.
+     * @param location Location to change the selection to.
+     */
+    protected void setRightSelection(Player player, Location location) {
+        locationSelections.putIfAbsent(player.getUniqueId(), new LocationSelection());
+        locationSelections.get(player.getUniqueId()).setRight(location);
     }
 
     /**
@@ -333,21 +387,6 @@ public class MinePlot extends JavaPlugin {
     private double parseDouble(String number) throws IllegalArgumentException {
         try {
             return Double.parseDouble(number);
-        }
-        catch(NumberFormatException e) {
-            throw new IllegalArgumentException(Message.INVALID_NUMBER);
-        }
-    }
-
-    /**
-     * Parses an int from the given string, and throws an exception if the number is invalid.
-     * @param number Number to be parsed.
-     * @return Integer.
-     * @throws IllegalArgumentException If the number format is not correct.
-     */
-    private int parseInt(String number) throws IllegalArgumentException {
-        try {
-            return Integer.parseInt(number);
         }
         catch(NumberFormatException e) {
             throw new IllegalArgumentException(Message.INVALID_NUMBER);
