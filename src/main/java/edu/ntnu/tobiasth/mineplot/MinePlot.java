@@ -163,7 +163,7 @@ public class MinePlot extends JavaPlugin {
         ValueRange valueRange = new ValueRange(minValueX, maxValueX, minValueY, maxValueY);
 
         LocationSelection locations = locationSelections.get(sender.getUniqueId());
-        if(Objects.isNull(locations))
+        if(Objects.isNull(locations) || Objects.isNull(locations.getLeft()) || Objects.isNull(locations.getRight()))
             throw new IllegalArgumentException(Message.NO_SELECTION);
 
         Material material = getMaterial(args.next());
@@ -365,6 +365,26 @@ public class MinePlot extends JavaPlugin {
     protected void setRightSelection(Player player, Location location) {
         locationSelections.putIfAbsent(player.getUniqueId(), new LocationSelection());
         locationSelections.get(player.getUniqueId()).setRight(location);
+    }
+
+    /**
+     * Get a players right location.
+     * @param player Player to get the selection for.
+     * @return Current right location.
+     */
+    protected Location getRightSelection(Player player) {
+        LocationSelection ls = locationSelections.get(player.getUniqueId());
+        return Objects.isNull(ls) ? null : ls.getRight();
+    }
+
+    /**
+     * Get a players left location.
+     * @param player Player to get the selection for.
+     * @return Current left location.
+     */
+    protected Location getLeftSelection(Player player) {
+        LocationSelection ls = locationSelections.get(player.getUniqueId());
+        return Objects.isNull(ls) ? null : ls.getLeft();
     }
 
     /**
