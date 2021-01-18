@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class Expression {
     private final String exp;
     private final char variable;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /**
      * Define a new math expression.

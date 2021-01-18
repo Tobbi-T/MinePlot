@@ -29,7 +29,8 @@ public class Function extends Plot {
 
         for(double x = startValue; x < endValue; x += step) {
             try {
-                canvas.drawValue(x, expression.getValue(x), material);
+                double roundX = Math.round(x * 1e5) / 1e5;
+                canvas.drawValue(roundX, expression.getValue(roundX), material);
             }
             catch(IllegalArgumentException e) { /* This happens if one of the points in a function is outside the graph. */ }
             catch(Expression.MalformedExpressionException e) {

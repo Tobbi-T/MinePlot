@@ -3,7 +3,7 @@ package edu.ntnu.tobiasth.mineplot;
 public abstract class Message {
     private Message() {}
 
-    public static final String VERSION_INFO = "This server runs MinePlot v. 1.1.0 by tobiasth.";
+    public static final String VERSION_INFO = "This server runs MinePlot v. 1.1.1 by tobiasth.";
 
     public static final String UNKNOWN_COMMAND = "Unknown command. Please check your syntax.";
     public static final String SENDER_NOT_PLAYER = "This command can only be used by players.";
